@@ -170,6 +170,11 @@ def predict_by_patches():
                         prediction_coordConv_top_left[0] + input_size[0], prediction_coordConv_top_left[1] + input_size[1]),
                                   (20, 220, 20), 2)
 
+                    #draw line connecting cropped regions
+                    cv2.line(frame_image, (roi_bottom_right[0] + image_topLeft[0], roi_top_left[1] + image_topLeft[1]), original_image_top_left, (20, 220, 20), 1)
+                    cv2.line(frame_image, (roi_bottom_right[0] + image_topLeft[0], roi_bottom_right[1] + image_topLeft[1]),
+                             (label_top_left[0],label_top_left[1]+input_size[1]), (20, 220, 20), 1)
+
                     cv2.imshow('video_frame', frame_image)
                     cv2.waitKey(1)
 
