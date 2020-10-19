@@ -31,18 +31,27 @@ def main():
     labels = GatherImagesFromDirectory(labelsDir)
     sum = np.zeros([320, 320], dtype=np.float64)
 
-    sample_count = len(labels)
+    count_only_positive = True
+
+    sample_count = 150#len(labels)
+    counter = 0
     for i in range(0, sample_count):
         image = cv2.imread(labels[i], cv2.IMREAD_GRAYSCALE)
         _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY)
         image_float64 = image.astype(np.float64)
         image_float64 /= 255.0
         sum += image_float64
+        if count_only_positive:
+            non_zero_pixels = cv2.countNonZero(image)
+            if non_zero_pixels > 0:
+                counter += 1
+        else:
+            counter+=1
 
     norm_sum = np.zeros([320, 320], dtype=np.float64)
     #cv2.normalize(sum, norm_sum, 0.0, 255.0, cv2.NORM_MINMAX)
 
-    sum /= sample_count
+    sum /= counter
     sum *= 100.0 # to percents
     max_value = np.amax(sum)
     min_value = np.amin(sum)
@@ -78,7 +87,7 @@ def main():
     print("Min value " + str(min_value))
     print("Max value " + str(max_value))
 
-    fig, axs = plt.subplots(1, 4, figsize=(15.5, 3), constrained_layout=True)
+    fig, axs = plt.subplots(1, 4, figsize=(16, 3), constrained_layout=True)
     for [ax, cmap] in zip(axs, cms):
         psm = ax.pcolormesh(sum, cmap=cmap, rasterized=True, vmin=min_value, vmax=max_value)
         #ax.set_yticklabels(tick_labels)  # vertically oriented colorb
@@ -91,6 +100,8 @@ def main():
         ax.xaxis.set_ticks(np.arange(start, end+1, 80))
         start, end = ax.get_ylim()
         ax.yaxis.set_ticks(np.arange(start, end+1, 80))
+    #fig.tight_layout()
+    fig.suptitle("Labels Overlay Percentage in Each Image Pixel")
     plt.show()
 
     #cax = ax.imshow(sum, vmin=min_value, vmax=max_value)
@@ -102,8 +113,6 @@ def main():
     #plt.colorbar()
     #plt.show()
     norm_sum = sum.astype(np.uint8)
-    cv2.imshow("sum", norm_sum)
-    cv2.waitKey(0)
     print('end!')
 
 if __name__ == "__main__":
