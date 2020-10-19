@@ -5,6 +5,7 @@ import glob
 from matplotlib import cm
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # https://matplotlib.org/3.1.0/tutorials/colors/colormap-manipulation.html
 
@@ -30,7 +31,7 @@ def main():
     labels = GatherImagesFromDirectory(labelsDir)
     sum = np.zeros([320, 320], dtype=np.float64)
 
-    sample_count = 150#len(labels)
+    sample_count = len(labels)
     for i in range(0, sample_count):
         image = cv2.imread(labels[i], cv2.IMREAD_GRAYSCALE)
         _, image = cv2.threshold(image, 127, 255, cv2.THRESH_BINARY)
@@ -77,13 +78,15 @@ def main():
     print("Min value " + str(min_value))
     print("Max value " + str(max_value))
 
-
-    fig, axs = plt.subplots(1, 4, figsize=(18, 3), constrained_layout=True)
+    fig, axs = plt.subplots(1, 4, figsize=(15.5, 3), constrained_layout=True)
     for [ax, cmap] in zip(axs, cms):
         psm = ax.pcolormesh(sum, cmap=cmap, rasterized=True, vmin=min_value, vmax=max_value)
         #ax.set_yticklabels(tick_labels)  # vertically oriented colorb
-        cbar = fig.colorbar(psm, ax=ax, ticks=tick_values)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.1)
+        cbar = fig.colorbar(psm, ax=ax, cax=cax, ticks=tick_values, shrink=1.0)
         cbar.ax.set_yticklabels(tick_labels)
+        ax.set_aspect(aspect=1.0)
         start, end = ax.get_xlim()
         ax.xaxis.set_ticks(np.arange(start, end+1, 80))
         start, end = ax.get_ylim()
