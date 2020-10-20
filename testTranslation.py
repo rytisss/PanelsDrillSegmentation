@@ -58,19 +58,24 @@ def predict_by_patches():
     # Weights *.hdf5 file path
     path_to_weight = r'C:\Users\Rytis\Desktop\hole detection\UNet4_res_assp_5x5_16k_320x320_leaky\UNet4_res_assp_5x5_16k_320x320_leaky/UNet4_res_assp_5x5_16k_320x320-010-0.0785.hdf5'
     # Choose your 'super-model'
-    model = UNet4_res_aspp_First5x5(pretrained_weights=path_to_weight, number_of_kernels=16, input_size=(320, 320, 1),
+    model = UNet4_res_aspp_First5x5(pretrained_weights=path_to_weight, number_of_kernels=16, input_size=(input_size[0], input_size[1], 1),
                                   loss_function=Loss.CROSSENTROPY50DICE50, useLeakyReLU=True)
 
     # Second model with coordconv
     # Weights *.hdf5 file path
     path_to_weight_with_coordConv = r'C:\Users\Rytis\Desktop\hole detection\UNet4_res_assp_5x5_coord_16k_320x320_leaky_bug_fig\UNet4_res_assp_5x5_coord_16k_320x320_leaky_bug_fig/UNet4_res_assp_5x5_16k_320x320_coord-010-0.0782.hdf5'
     # Choose your 'super-model'
-    model_with_coordConv = UNet4_res_aspp_First5x5_CoordConv(pretrained_weights=path_to_weight_with_coordConv, number_of_kernels=16, input_size=(320, 320, 1),
+    model_with_coordConv = UNet4_res_aspp_First5x5_CoordConv(pretrained_weights=path_to_weight_with_coordConv, number_of_kernels=16, input_size=(input_size[0], input_size[1], 1),
                                     loss_function=Loss.CROSSENTROPY50DICE50, useLeakyReLU=True)
 
     # Test images directory
     test_images = r'C:\Users\Rytis\Desktop\hole detection\drilled holes test/Image/'
     test_labels = r'C:\Users\Rytis\Desktop\hole detection\drilled holes test/Label/'
+
+    # video output path
+    video_output_path = r'C:\Users\Rytis\Desktop\hole detection\drilled holes test/'
+    if not os.path.exists(video_output_path):
+        os.makedirs(video_output_path)
 
     image_paths = gather_image_from_dir(test_images)
     label_paths = gather_image_from_dir(test_labels)
@@ -81,6 +86,15 @@ def predict_by_patches():
     for i in range(0, len(image_paths)):
         image_path = image_paths[i]
         label_path = label_paths[i]
+
+        # separate video for each image
+        # name video after image name
+        image_name = get_file_name(image_path)
+
+        # make video
+        video = cv2.VideoWriter(video_output_path + image_name + '.avi',
+                                cv2.VideoWriter_fourcc(*'DIVX'), 30, (video_frame_width, video_frame_height))
+
         print(image_path)
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         label = cv2.imread(label_path, cv2.IMREAD_GRAYSCALE)
@@ -119,7 +133,10 @@ def predict_by_patches():
                     roi_h = input_size[1]
                     roi_image = cropImageFromRegion(image, (roi_x, roi_y, roi_x + roi_w, roi_y + roi_h))
                     roi_label = cropImageFromRegion(label, (roi_x, roi_y, roi_x + roi_w, roi_y + roi_h))
-                    show_roi = True
+                    wo_coord_conv_pred = predict_image(model, roi_image)
+                    w_coord_conv_pred = predict_image(model_with_coordConv, roi_image)
+
+                    show_roi = False
                     if show_roi:
                         cv2.imshow('roi_image', roi_image)
                         cv2.imshow('roi_label', roi_label)
@@ -130,8 +147,8 @@ def predict_by_patches():
                     roi_top_left = ((int)(roi_x * 1.0/ratio), (int)(roi_y * 1.0/ratio))
                     roi_bottom_right = ((int)((roi_x+roi_w) * 1.0 / ratio), (int)((roi_y+roi_h) * 1.0 / ratio))
                     cv2.rectangle(imageBGR, roi_top_left, roi_bottom_right, (20,220,20), 2)
-                    cv2.imshow('region', imageBGR)
-                    cv2.waitKey(1)
+                    #cv2.imshow('region', imageBGR)
+                    #cv2.waitKey(1)
 
                     # make video output frame with every image moded9
                     frame_image = np.zeros((video_frame_height, video_frame_width, 3), np.uint8)
@@ -141,44 +158,87 @@ def predict_by_patches():
                     # take 1400 pixels width
                     image_topLeft = ((int)((1400 - resized_image_width) / 2), (int)((video_frame_height - resized_image_height) / 2))
                     frame_image[image_topLeft[1]:image_topLeft[1]+resized_image_height, image_topLeft[0]:image_topLeft[0]+resized_image_width] = imageBGR
+                    #draw rectangle
+                    cv2.rectangle(frame_image, image_topLeft, (image_topLeft[0]+resized_image_width, image_topLeft[1]+resized_image_height), (10, 150, 10), 2)
+                    cv2.rectangle(frame_image, (0,0), (1400,video_frame_height),
+                                  (150, 50, 10), 5)
 
                     # crop images place
                     top_offset = (int)((video_frame_height - screen_height) / 2)
-                    original_image_top_left = (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2), top_offset + (int)((250 - input_size[1]) / 2))
+                    original_image_top_left = (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2 - 100), top_offset + (int)((250 - input_size[1]) / 2))
                     crop_imageBGR = cv2.cvtColor(roi_image, cv2.COLOR_GRAY2RGB)
                     frame_image[original_image_top_left[1]:original_image_top_left[1] + input_size[1], original_image_top_left[0]:original_image_top_left[0] + input_size[0]] = crop_imageBGR
                     cv2.rectangle(frame_image, original_image_top_left, (original_image_top_left[0]+input_size[0], original_image_top_left[1]+input_size[1]), (20, 220, 20), 2)
 
-                    label_top_left = (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2), 250 + top_offset + (int)((250 - input_size[1]) / 2))
+                    label_top_left = (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2- 100), 250 + top_offset + (int)((250 - input_size[1]) / 2))
                     crop_labelBGR = cv2.cvtColor(roi_label, cv2.COLOR_GRAY2RGB)
                     frame_image[label_top_left[1]:label_top_left[1] + input_size[1], label_top_left[0]:label_top_left[0] + input_size[0]] = crop_labelBGR
                     cv2.rectangle(frame_image, label_top_left, (
                     label_top_left[0] + input_size[0], label_top_left[1] + input_size[1]),
                                   (20, 220, 20), 2)
 
-                    prediction_top_left =  (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2), 500 + top_offset + (int)((250 - input_size[1]) / 2))
+                    prediction_top_left =  (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2 - 100), 500 + top_offset + (int)((250 - input_size[1]) / 2))
                     #make prediction rgb
-                    frame_image[prediction_top_left[1]:prediction_top_left[1] + input_size[1],  prediction_top_left[0]:prediction_top_left[0] + input_size[0]] = crop_imageBGR
+                    wo_coord_conv_pred_RGB = cv2.cvtColor(wo_coord_conv_pred, cv2.COLOR_GRAY2RGB)
+                    frame_image[prediction_top_left[1]:prediction_top_left[1] + input_size[1],  prediction_top_left[0]:prediction_top_left[0] + input_size[0]] = wo_coord_conv_pred_RGB
                     cv2.rectangle(frame_image, prediction_top_left, (
                         prediction_top_left[0] + input_size[0], prediction_top_left[1] + input_size[1]),
                                   (20, 220, 20), 2)
 
-                    prediction_coordConv_top_left = (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2), 750 + top_offset + (int)((250 - input_size[1]) / 2))
+                    prediction_coordConv_top_left = (1400 + (int)((video_frame_width - 1400 - input_size[0]) / 2 - 100), 750 + top_offset + (int)((250 - input_size[1]) / 2))
                     # make prediction rgb
-                    frame_image[prediction_coordConv_top_left[1]:prediction_coordConv_top_left[1] + input_size[1], prediction_coordConv_top_left[0]:prediction_coordConv_top_left[0] + input_size[0]] = crop_imageBGR
+                    w_coord_conv_pred_RGB = cv2.cvtColor(w_coord_conv_pred, cv2.COLOR_GRAY2RGB)
+                    frame_image[prediction_coordConv_top_left[1]:prediction_coordConv_top_left[1] + input_size[1], prediction_coordConv_top_left[0]:prediction_coordConv_top_left[0] + input_size[0]] = w_coord_conv_pred_RGB
                     cv2.rectangle(frame_image, prediction_coordConv_top_left, (
                         prediction_coordConv_top_left[0] + input_size[0], prediction_coordConv_top_left[1] + input_size[1]),
                                   (20, 220, 20), 2)
 
                     #draw line connecting cropped regions
-                    cv2.line(frame_image, (roi_bottom_right[0] + image_topLeft[0], roi_top_left[1] + image_topLeft[1]), original_image_top_left, (20, 220, 20), 1)
+                    cv2.line(frame_image, (roi_bottom_right[0] + image_topLeft[0], roi_top_left[1] + image_topLeft[1]), original_image_top_left, (20, 220, 20), 1,  cv2.LINE_AA)
                     cv2.line(frame_image, (roi_bottom_right[0] + image_topLeft[0], roi_bottom_right[1] + image_topLeft[1]),
-                             (label_top_left[0],label_top_left[1]+input_size[1]), (20, 220, 20), 1)
+                             (original_image_top_left[0],original_image_top_left[1]+input_size[1]), (20, 220, 20), 1,  cv2.LINE_AA)
+
+                    text_x_offset = 10
+
+                    font = cv2.FONT_HERSHEY_COMPLEX
+                    font_scale = 0.7
+                    font_thickness = 1
+
+                    text = 'Image'
+                    (label_width, label_height), baseline = cv2.getTextSize(text, font, font_scale, font_thickness)
+                    pt = (original_image_top_left[0] + input_size[0] + text_x_offset, (int)(original_image_top_left[1] + ((input_size[0] + label_height) / 2)))
+                    cv2.putText(frame_image, text, pt, font, font_scale, (20,220,20),
+                                font_thickness)
+
+                    text = 'Label'
+                    (label_width, label_height), baseline = cv2.getTextSize(text, font, font_scale, font_thickness)
+                    pt = (label_top_left[0] + input_size[0] + text_x_offset,
+                          (int)(label_top_left[1] + ((input_size[0] + label_height) / 2)))
+                    cv2.putText(frame_image, text, pt, font, font_scale, (20, 220, 20),
+                                font_thickness)
+
+                    text = 'w/o coordConv'
+                    (label_width, label_height), baseline = cv2.getTextSize(text, font, font_scale, font_thickness)
+                    pt = (prediction_top_left[0] + input_size[0] + text_x_offset,
+                          (int)(prediction_top_left[1] + ((input_size[0] + label_height) / 2)))
+                    cv2.putText(frame_image, text, pt, font, font_scale, (20, 220, 20),
+                                font_thickness)
+
+                    text = 'w/ coordConv'
+                    (label_width, label_height), baseline = cv2.getTextSize(text, font, font_scale, font_thickness)
+                    pt = (prediction_coordConv_top_left[0] + input_size[0] + text_x_offset,
+                          (int)(prediction_coordConv_top_left[1] + ((input_size[0] + label_height) / 2)))
+                    cv2.putText(frame_image, text, pt, font, font_scale, (20, 220, 20),
+                                font_thickness)
 
                     cv2.imshow('video_frame', frame_image)
                     cv2.waitKey(1)
 
+                    for i in range(0,10): #ten frame
+                        video.write(frame_image)
+
                 y += y_step
+        video.release()
     tf.keras.backend.clear_session()
 
 def main():
