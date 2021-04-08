@@ -10,7 +10,7 @@ def resize_and_insert(image, destination_width, destination_height):
     :param destination_height: desired height
     :return: resized image, ROI of the image [aspect ratio maintained], resize ratio
     """
-    destination_image = np.zeros((destination_height, destination_width, 3), np.uint8)
+    destination_image = np.zeros((destination_height, destination_width), np.uint8)
     # resize 'imageROI' to fit into destination image, also keep the aspect ratio
     roi_height, roi_width = image.shape[:2]
     x_aspect_ratio = destination_width / roi_width
@@ -29,8 +29,7 @@ def resize_and_insert(image, destination_width, destination_height):
     resized_roi_height, resized_roi_width = resized_roi.shape[:2]
     x_offset = int((destination_width - resized_roi_width) / 2)
     y_offset = int((destination_height - resized_roi_height) / 2)
-    destination_image[y_offset:y_offset + resized_roi_height, x_offset:x_offset + resized_roi_width,
-    :] = resized_roi
+    destination_image[y_offset:y_offset + resized_roi_height, x_offset:x_offset + resized_roi_width] = resized_roi
     return destination_image, (
         x_offset, y_offset, x_offset + resized_roi_width, y_offset + resized_roi_height), resize_ratio
 
