@@ -1,3 +1,5 @@
+import os
+
 import tensorflow as tf
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -6,14 +8,22 @@ tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from models.autoencoder import unet_autoencoder
 from models.losses import Loss
 from models.data_loader import data_generator
-import os
+from utilities import gather_image_from_dir
+
+# Data
+# train
+train_images_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Image_rois/'
+train_labels_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Label_rois/'
+# test
+test_images_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Image_rois/'
+test_labels_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Label_rois/'
 
 # Directory for weight saving (creates if it does not exist)
 weights_output_dir = r'C:\Users\Rytis\Desktop\straipsnis/test/'
 weights_output_name = 'UNet4_res_assp_5x5_16k_320x320'
 # batch size. How many samples you want to feed in one iteration?
 batch_size = 4
-# number_of_epoch. How many epoch you want to train?
+# number_of_epoch. How many epochs you want to train?
 number_of_epoch = 20
 
 
@@ -44,9 +54,23 @@ def scheduler(epoch):
 
 
 def train():
-    number_of_images = 14219
+    # check how many train and test samples are in the directories
+    train_images_count = len(gather_image_from_dir(train_images_dir))
+    train_labels_count = len(gather_image_from_dir(train_labels_dir))
+    train_samples_count = min(train_images_count, train_labels_count)
+    print('Training samples: ' + str(train_samples_count))
+
+    test_images_count = len(gather_image_from_dir(test_images_dir))
+    test_labels_count = len(gather_image_from_dir(test_labels_dir))
+    test_samples_count = min(test_images_count, test_labels_count)
+    print('Testing samples: ' + str(test_samples_count))
+
     # how many iterations in one epoch? Should cover whole dataset. Divide number of data samples from batch size
-    number_of_iteration = number_of_images // batch_size
+    number_of_train_iterations = train_samples_count // batch_size
+    number_of_train_iterations = 5
+    number_of_test_iterations = test_samples_count // batch_size
+    number_of_test_iterations = 5
+
     # Define model
     model = unet_autoencoder(filters_in_input=16,
                              input_size=(320, 320, 1),
@@ -57,17 +81,18 @@ def train():
                              use_coord_conv=True,
                              leaky_relu_alpha=0.1)
 
-    # Where is your data?
-    # This path should point to directory with folders 'Images' and 'Labels'
-    # In each of mentioned folders should be image and annotations respectively
-    data_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/'
-
     # Define data generator that will take images from directory
     train_data_generator = data_generator(batch_size,
-                            image_folder=data_dir + 'Image_rois/',
-                            label_folder=data_dir + 'Label_rois/',
-                            target_size=(320, 320),
-                            image_color_mode='grayscale')
+                                          image_folder=train_images_dir,
+                                          label_folder=train_labels_dir,
+                                          target_size=(320, 320),
+                                          image_color_mode='grayscale')
+
+    test_data_generator = data_generator(batch_size,
+                                         image_folder=test_images_dir,
+                                         label_folder=test_labels_dir,
+                                         target_size=(320, 320),
+                                         image_color_mode='grayscale')
 
     # create weights output directory
     if not os.path.exists(weights_output_dir):
@@ -85,15 +110,13 @@ def train():
     model_checkpoint = tf.keras.callbacks.ModelCheckpoint(weights_name, monitor='loss', verbose=1, save_best_only=False,
                                                           save_weights_only=False)
     model.fit(train_data_generator,
-                        steps_per_epoch=number_of_iteration,
-                        epochs=number_of_epoch,
-                        callbacks=[model_checkpoint, learning_rate_scheduler],
-                        shuffle=True)
-
-
-def main():
-    train()
+              steps_per_epoch=number_of_train_iterations,
+              epochs=number_of_epoch,
+              validation_data=test_data_generator,
+              validation_steps=number_of_test_iterations,
+              callbacks=[model_checkpoint, learning_rate_scheduler, saver],
+              shuffle=True)
 
 
 if __name__ == "__main__":
-    main()
+    train()

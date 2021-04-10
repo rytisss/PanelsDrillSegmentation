@@ -1,55 +1,25 @@
-import os
-import glob
-from models.autoencoder import unet_autoencoder
-import numpy as np
 import cv2
 
+from models.autoencoder import unet_autoencoder
+from processing import tensor_to_image, image_to_tensor
+from utilities import gather_image_from_dir
 
-def gather_image_from_dir(input_dir):
-    image_extensions = ['*.bmp', '*.jpg', '*.png']
-    image_list = []
-    for image_extension in image_extensions:
-        image_list.extend(glob.glob(input_dir + image_extension))
-    image_list.sort()
-    return image_list
-
-
-def get_file_name(path):
-    file_name_with_ext = path.rsplit('\\', 1)[1]
-    file_name, file_extension = os.path.splitext(file_name_with_ext)
-    return file_name
-
-
-##########################################
-# Super-basic testing/prediction routine
-##########################################
-
-def image_to_tensor(image):
-    # preprocess
-    image_norm = image / 255
-    image_norm = np.reshape(image_norm, image_norm.shape + (1,))
-    image_norm = np.reshape(image_norm, (1,) + image_norm.shape)
-    return image_norm
-
-
-def tensor_to_image(tensor):
-    # normalize to image
-    prediction_image_norm = tensor[0, :, :, 0]
-    prediction_image = prediction_image_norm * 255
-    prediction_image = prediction_image.astype(np.uint8)
-    return prediction_image
+# Weights path
+weight_path = r'C:\Users\Rytis\Desktop\straipsnis\test/_best.hdf5'
+# Test images directory
+test_images = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Image_rois/'
 
 
 def predict():
-    # Weights path
-    weight_path = r'C:\Users\Rytis\Desktop\pavement_defect_results\pretrained_UNet4_res_aspp_AG\gaps384\Gaps384_pretrained_UNet4_res_aspp_AG_750.hdf5'
-
-    # Choose your 'super-model'
-    model = UNet4_res_aspp_AG(pretrained_weights=weight_path, number_of_kernels=32, input_size=(320, 320, 1),
-                              loss_function=Loss.CROSSENTROPY50DICE50)
-
-    # Test images directory
-    test_images = r'C:\Users\Rytis\Desktop\CrackForestdatasets_output\Train\Images/'
+    # Define model
+    model = unet_autoencoder(filters_in_input=16,
+                             input_size=(320, 320, 1),
+                             learning_rate=1e-3,
+                             use_se=True,
+                             use_aspp=True,
+                             use_coord_conv=True,
+                             leaky_relu_alpha=0.1,
+                             pretrained_weights=weight_path)
 
     image_paths = gather_image_from_dir(test_images)
 
@@ -58,15 +28,11 @@ def predict():
         # Load image
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         # preprocess
-        image_norm = image / 255
-        image_norm = np.reshape(image_norm, image_norm.shape + (1,))
-        image_norm = np.reshape(image_norm, (1,) + image_norm.shape)
+        norm_image = image_to_tensor(image)
         # predict
-        prediction = model.predict(image_norm)
-        # normalize to image
-        prediction_image_norm = prediction[0, :, :, 0]
-        prediction_image = prediction_image_norm * 255
-        prediction_image = prediction_image.astype(np.uint8)
+        prediction = model.predict(norm_image)
+        # make image uint8
+        prediction_image = tensor_to_image(prediction)
 
         # Do you want to visualize image?
         show_image = True
@@ -76,9 +42,5 @@ def predict():
             cv2.waitKey(1)
 
 
-def main():
-    predict()
-
-
 if __name__ == '__main__':
-    main()
+    predict()
