@@ -46,7 +46,7 @@ def scheduler(epoch):
 def train():
     number_of_images = 14219
     # how many iterations in one epoch? Should cover whole dataset. Divide number of data samples from batch size
-    number_of_iteration = number_of_images / batch_size
+    number_of_iteration = number_of_images // batch_size
     # Define model
     model = unet_autoencoder(filters_in_input=16,
                              input_size=(320, 320, 1),
@@ -62,22 +62,10 @@ def train():
     # In each of mentioned folders should be image and annotations respectively
     data_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/'
 
-    # Possible 'on-the-flight' augmentation parameters
-    data_gen_args = dict(rotation_range=0.0,
-                         width_shift_range=0.00,
-                         height_shift_range=0.00,
-                         shear_range=0.00,
-                         zoom_range=0.00,
-                         horizontal_flip=False,
-                         fill_mode='nearest')
-
     # Define data generator that will take images from directory
     train_data_generator = data_generator(batch_size,
-                            data_dir,
-                            'Image_rois',
-                            'Label_rois',
-                            aug_dict=data_gen_args,
-                            save_to_dir=None,
+                            image_folder=data_dir + 'Image_rois/',
+                            label_folder=data_dir + 'Label_rois/',
                             target_size=(320, 320),
                             image_color_mode='grayscale')
 
