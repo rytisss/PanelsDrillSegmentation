@@ -120,6 +120,8 @@ def render_videos():
             image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
             label = cv2.imread(label_path, cv2.IMREAD_GRAYSCALE)
 
+            print(image_path)
+
             height, width = image.shape[:2]
             regions = processing.split_image_to_tiles(width, height, tile_width, tile_height, overlay, overlay)
 
@@ -249,7 +251,7 @@ def render_videos():
                 for i in range(0, 7):  # seven frame
                     video.write(frame_image)
 
-            video.release()
+        video.release()
 
 
 if __name__ == '__main__':
