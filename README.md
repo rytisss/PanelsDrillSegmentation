@@ -1,4 +1,4 @@
-# PanelsDrillSegmentation 🕳️
+# PanelsDrillSegmentation 📸 -> 🕳️
 
 🛠️ Upcoming update! 🛠️ Article in revision 📚
 
