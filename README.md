@@ -1,6 +1,6 @@
 # PanelsDrillSegmentation 📸 -> 🕳️
 
-<img src="https://github.com/rytisss/PanelsDrillSegmentation/blob/main/res/hole_segmentation_preview.gif" width="400"/>
+<img src="https://github.com/rytisss/PanelsDrillSegmentation/blob/main/res/hole_segmentation_preview.gif" width="1000"/>
 
 🛠️ Upcoming update! 🛠️ Article in revision 📚
 
