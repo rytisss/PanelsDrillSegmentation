@@ -1,4 +1,4 @@
-# PanelsDrillSegmentation 📸 -> 🕳️
+# Drilled holes segmentation in the furniture panels 📸 -> 🕳️
 
 <img src="https://github.com/rytisss/PanelsDrillSegmentation/blob/main/res/hole_segmentation_preview.gif" width="1000"/>
 
