@@ -15,3 +15,9 @@ def get_file_name(path):
     file_name_with_ext = path.rsplit('\\', 1)[1]
     file_name, file_extension = os.path.splitext(file_name_with_ext)
     return file_name
+
+
+def make_directory(output_dir):
+    if not os.path.exists(output_dir):
+        print('Making output directory: ' + output_dir)
+        os.makedirs(output_dir)
