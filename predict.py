@@ -4,6 +4,7 @@ from models.autoencoder import unet_autoencoder
 from processing import tensor_to_image, image_to_tensor
 from utilities import gather_image_from_dir
 
+import tensorflow as tf
 # Weights path
 weight_path = r'C:\Users\Rytis\Desktop\straipsnis\test/_best.hdf5'
 # Test images directory
@@ -15,11 +16,13 @@ def predict():
     model = unet_autoencoder(filters_in_input=16,
                              input_size=(320, 320, 1),
                              learning_rate=1e-3,
-                             use_se=True,
+                             use_se=False,
                              use_aspp=True,
-                             use_coord_conv=True,
+                             use_residual_connections=True,
                              leaky_relu_alpha=0.1,
                              pretrained_weights=weight_path)
+
+    tf.keras.utils.plot_model(model, to_file='model.png')
 
     image_paths = gather_image_from_dir(test_images)
 
