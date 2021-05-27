@@ -207,7 +207,7 @@ void ProcessImage(std::string path)
 
 int main()
 {
-	std::string path = "C:/Users/Rytis/Downloads/cropped/image/";
+	std::string path = "data_dir/";
 	std::vector<std::string> imagePaths = GetImageFromDirectory(path);
 	for (size_t i = 0; i < imagePaths.size(); i++)
 	{
