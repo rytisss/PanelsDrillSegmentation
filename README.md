@@ -18,6 +18,7 @@ To train model use **train.py** script. Different convolutional neural network a
 **use_aspp** - ***Atrous spatial pyramid pooling***  
 **use_residual_connetions** - ***Residual blocks/residual connections***  
 **use_coord_conv** - ***CoordConv layer***  
+**downscale_times** - ***How many time we want to downscale? More downscales = more convolutions or 1 downscale = 2 x Conv2D layers**  
 
 ```
     model = unet_autoencoder(filters_in_input=16,
@@ -28,6 +29,7 @@ To train model use **train.py** script. Different convolutional neural network a
                              use_aspp=True,
                              use_coord_conv=True,
                              use_residual_connections=True,
+                             downscale_times=4,
                              leaky_relu_alpha=0.1)
 ```
 
@@ -43,6 +45,7 @@ Use **predict.py** to test or perform prediction. Model can be constructed is th
                              use_aspp=True,
                              use_coord_conv=True,
                              use_residual_connections=True,
+                             downscale_times=4,
                              leaky_relu_alpha=0.1,
                              pretrained_weights=weight_path)
 ```
