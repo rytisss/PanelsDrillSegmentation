@@ -67,9 +67,7 @@ def train():
 
     # how many iterations in one epoch? Should cover whole dataset. Divide number of data samples from batch size
     number_of_train_iterations = train_samples_count // batch_size
-    number_of_train_iterations = 5
     number_of_test_iterations = test_samples_count // batch_size
-    number_of_test_iterations = 5
 
     # Define model
     model = unet_autoencoder(filters_in_input=16,
