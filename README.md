@@ -14,11 +14,11 @@ Implementation made in Tensorflow 2.5.0
 
 To train model use **train.py** script. Different convolutional neural network architectures can made with parameters.  
   
-**use_se** - ***Squeeze and excitation blocks***  
-**use_aspp** - ***Atrous spatial pyramid pooling***  
-**use_residual_connetions** - ***Residual blocks/residual connections***  
-**use_coord_conv** - ***CoordConv layer***  
-**downscale_times** - ***How many time we want to downscale? More downscales = more convolutions or 1 downscale = 2 x Conv2D layers**  
+- **use_se** - ***Squeeze and excitation blocks***  
+- **use_aspp** - ***Atrous spatial pyramid pooling***  
+- **use_residual_connetions** - ***Residual blocks/residual connections***  
+- **use_coord_conv** - ***CoordConv layer***  
+- **downscale_times** - ***How many time we want to downscale? More downscales = more convolutions or 1 downscale = 2 x Conv2D layers***  
 
 ```
     model = unet_autoencoder(filters_in_input=16,
@@ -35,7 +35,7 @@ To train model use **train.py** script. Different convolutional neural network a
 
 Use **predict.py** to test or perform prediction. Model can be constructed is the same way as shown above. Pass weights files path to the neural network:  
   
-**pretrained_weights** - weights path ('*.hdf5' file)
+- **pretrained_weights** - weights path ('*.hdf5' file)
 ```
     model = unet_autoencoder(filters_in_input=16,
                              input_size=(image_width, image_width, image_channels),
@@ -49,6 +49,8 @@ Use **predict.py** to test or perform prediction. Model can be constructed is th
                              leaky_relu_alpha=0.1,
                              pretrained_weights=weight_path)
 ```
+
+### Conventional image processing methods mentioned in the article can be replicated with code given in **'conventional_method_cpp/'** folder. It is written in C++ and mainly OpenCV is used for image processing.
 
 # If you find code useful, consider citing the following research:  
   
