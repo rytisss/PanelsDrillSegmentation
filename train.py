@@ -1,5 +1,4 @@
 import os
-
 import tensorflow as tf
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -11,20 +10,28 @@ from models.data_loader import data_generator
 from utilities import gather_image_from_dir
 
 # Data
+image_width = 320
+image_height = 320
+image_channels = 1
+
 # train
-train_images_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Image_rois/'
-train_labels_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Label_rois/'
+train_images_dir = 'data/image/'
+train_labels_dir = 'data/label/'
 # test
-test_images_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Image_rois/'
-test_labels_dir = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Label_rois/'
+test_images_dir = 'data/image/'
+test_labels_dir = 'data/label/'
 
 # Directory for weight saving (creates if it does not exist)
-weights_output_dir = r'C:\Users\Rytis\Desktop\straipsnis/test/'
+weights_output_dir = 'weights_output/'
 weights_output_name = 'UNet4_res_assp_5x5_16k_320x320'
 # batch size. How many samples you want to feed in one iteration?
 batch_size = 4
 # number_of_epoch. How many epochs you want to train?
 number_of_epoch = 20
+# After how many epochs you want to reduce learning rate by half?
+lr_scheduling_epochs = 5
+# initial learning rate
+initial_lr = 0.0001
 
 
 class CustomSaver(tf.keras.callbacks.Callback):
@@ -46,9 +53,8 @@ class CustomSaver(tf.keras.callbacks.Callback):
 # This function keeps the learning rate at 0.001 for the first ten epochs
 # and decreases it exponentially after that.
 def scheduler(epoch):
-    step = epoch // 5
-    init_lr = 0.001
-    lr = init_lr / 2 ** step
+    step = epoch // lr_scheduling_epochs
+    lr = initial_lr / 2 ** step
     print('Epoch: ' + str(epoch) + ', learning rate = ' + str(lr))
     return lr
 
@@ -71,7 +77,7 @@ def train():
 
     # Define model
     model = unet_autoencoder(filters_in_input=16,
-                             input_size=(320, 320, 1),
+                             input_size=(image_width, image_width, image_channels),
                              loss_function=Loss.CROSSENTROPY50DICE50,
                              learning_rate=1e-3,
                              use_se=True,
@@ -83,13 +89,13 @@ def train():
     train_data_generator = data_generator(batch_size,
                                           image_folder=train_images_dir,
                                           label_folder=train_labels_dir,
-                                          target_size=(320, 320),
+                                          target_size=(image_width, image_width),
                                           image_color_mode='grayscale')
 
     test_data_generator = data_generator(batch_size,
                                          image_folder=test_images_dir,
                                          label_folder=test_labels_dir,
-                                         target_size=(320, 320),
+                                         target_size=(image_width, image_width),
                                          image_color_mode='grayscale')
 
     # create weights output directory

@@ -21,45 +21,45 @@ from models.losses import dice_loss, dice_score, binary_crossentropy, Active_Con
 def CompileModel(model, lossFunction, num_class=2, learning_rate=1e-3):
     if num_class == 2:
         if lossFunction == Loss.DICE:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=dice_loss, metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=dice_loss, metrics=[dice_score])
         elif lossFunction == Loss.CROSSENTROPY:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=binary_crossentropy, metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=binary_crossentropy, metrics=[dice_score])
         elif lossFunction == Loss.ACTIVECONTOURS:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=Active_Contour_Loss, metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=Active_Contour_Loss, metrics=[dice_score])
         elif lossFunction == Loss.SURFACEnDice:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=surface_loss, metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=surface_loss, metrics=[dice_score])
         elif lossFunction == Loss.FOCALLOSS:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=FocalLoss, metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=FocalLoss, metrics=[dice_score])
         elif lossFunction == Loss.WEIGHTEDCROSSENTROPY:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=weighted_bce_loss, metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=weighted_bce_loss, metrics=[dice_score])
         elif lossFunction == Loss.WEIGHTED60CROSSENTROPY:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=adjusted_weighted_bce_loss(0.6), metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=adjusted_weighted_bce_loss(0.6), metrics=[dice_score])
         elif lossFunction == Loss.WEIGHTED70CROSSENTROPY:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=adjusted_weighted_bce_loss(0.7), metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=adjusted_weighted_bce_loss(0.7), metrics=[dice_score])
         elif lossFunction == Loss.CROSSENTROPY50DICE50:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=cross_and_dice_loss(0.5, 0.5), metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=cross_and_dice_loss(0.5, 0.5), metrics=[dice_score])
         elif lossFunction == Loss.CROSSENTROPY25DICE75:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=cross_and_dice_loss(0.25, 0.75), metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=cross_and_dice_loss(0.25, 0.75), metrics=[dice_score])
         elif lossFunction == Loss.CROSSENTROPY75DICE25:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=cross_and_dice_loss(0.75, 0.25), metrics=[dice_score])
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=cross_and_dice_loss(0.75, 0.25), metrics=[dice_score])
         elif lossFunction == Loss.WEIGHTEDCROSSENTROPY50DICE50:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=weighted_cross_and_dice_loss(0.5, 0.5),
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=weighted_cross_and_dice_loss(0.5, 0.5),
                           metrics=[dice_score])
         elif lossFunction == Loss.WEIGHTEDCROSSENTROPY25DICE75:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=weighted_cross_and_dice_loss(0.25, 0.75),
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=weighted_cross_and_dice_loss(0.25, 0.75),
                           metrics=[dice_score])
         elif lossFunction == Loss.WEIGHTEDCROSSENTROPY75DICE25:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=weighted_cross_and_dice_loss(0.75, 0.25),
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=weighted_cross_and_dice_loss(0.75, 0.25),
                           metrics=[dice_score])
     else:
         if lossFunction == Loss.CROSSENTROPY50DICE50:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=cross_and_dice_loss_multiclass(0.5, 0.5),
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=cross_and_dice_loss_multiclass(0.5, 0.5),
                           metrics=[dice_score])
         elif lossFunction == Loss.CROSSENTROPY25DICE75:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=cross_and_dice_loss_multiclass(0.25, 0.75),
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=cross_and_dice_loss_multiclass(0.25, 0.75),
                           metrics=[dice_score])
         elif lossFunction == Loss.CROSSENTROPY75DICE25:
-            model.compile(optimizer=Adam(lr=learning_rate), loss=cross_and_dice_loss_multiclass(0.75, 0.25),
+            model.compile(optimizer=Adam(learning_rate=learning_rate), loss=cross_and_dice_loss_multiclass(0.75, 0.25),
                           metrics=[dice_score])
     return model
 

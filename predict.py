@@ -6,9 +6,9 @@ from utilities import gather_image_from_dir
 
 import tensorflow as tf
 # Weights path
-weight_path = r'C:\Users\Rytis\Desktop\straipsnis\test/_best.hdf5'
+weight_path = None # provide path to weights '*.hdf5'
 # Test images directory
-test_images = r'C:\Users\Rytis\Desktop\straipsnis\training data\dataForTraining_v3\dataForTraining_v3/Image_rois/'
+test_images = 'data/image/'
 
 
 def predict():
@@ -21,8 +21,6 @@ def predict():
                              use_residual_connections=True,
                              leaky_relu_alpha=0.1,
                              pretrained_weights=weight_path)
-
-    tf.keras.utils.plot_model(model, to_file='model.png')
 
     image_paths = gather_image_from_dir(test_images)
 
@@ -42,7 +40,7 @@ def predict():
         if show_image:
             cv2.imshow("image", image)
             cv2.imshow("prediction", prediction_image)
-            cv2.waitKey(1)
+            cv2.waitKey(1000)
 
 
 if __name__ == '__main__':
