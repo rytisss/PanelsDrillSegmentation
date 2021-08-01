@@ -79,23 +79,27 @@ def train():
     model = unet_autoencoder(filters_in_input=16,
                              input_size=(image_width, image_width, image_channels),
                              loss_function=Loss.CROSSENTROPY50DICE50,
+                             downscale_times=6,
                              learning_rate=1e-3,
-                             use_se=True,
+                             use_se=False,
                              use_aspp=True,
-                             use_coord_conv=True,
+                             use_coord_conv=False,
+                             use_residual_connections=False,
                              leaky_relu_alpha=0.1)
+
+    model.summary()
 
     # Define data generator that will take images from directory
     train_data_generator = data_generator(batch_size,
                                           image_folder=train_images_dir,
                                           label_folder=train_labels_dir,
-                                          target_size=(image_width, image_width),
+                                          target_size=(image_width, image_height),
                                           image_color_mode='grayscale')
 
     test_data_generator = data_generator(batch_size,
                                          image_folder=test_images_dir,
                                          label_folder=test_labels_dir,
-                                         target_size=(image_width, image_width),
+                                         target_size=(image_width, image_height),
                                          image_color_mode='grayscale')
 
     # create weights output directory

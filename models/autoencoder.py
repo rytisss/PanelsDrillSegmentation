@@ -230,7 +230,7 @@ def unet_autoencoder(pretrained_weights=None,
         down_layers.append((opposite_connection, enc))
     # bottleneck
     _, enc_bridge = make_downscale_layer(down_layers[layers_until_bottleneck][1],
-                                         int(filters_in_input * math.pow(2, downscale_times)), 3,
+                                         int(filters_in_input * math.pow(2, downscale_times - 1)), 3,
                                          max_pool=False,
                                          use_residual_connections=use_residual_connections,
                                          use_aspp=use_aspp, use_se=use_se,
@@ -244,7 +244,7 @@ def unet_autoencoder(pretrained_weights=None,
     latest_dec_input_tensor = enc_bridge
     for i in range(layers_until_output):
         latest_dec_input_tensor = make_upscale_layer(latest_dec_input_tensor, down_layers[i][0],
-                                                     int(filters_in_input * math.pow(2, downscale_times - i - 1)),
+                                                     int(filters_in_input * math.pow(2, downscale_times - i - 2)),
                                                      filter_size=3,
                                                      use_residual_connections=use_residual_connections,
                                                      use_se=use_se, use_coord_conv=use_coord_conv,
@@ -272,5 +272,5 @@ def unet_autoencoder(pretrained_weights=None,
     model = CompileModel(model, loss_function, num_class, learning_rate)
     if pretrained_weights:
         model.load_weights(pretrained_weights)
-        # plot_model(model, to_file='UNet4.png', show_shapes=True, show_layer_names=True)
+        #plot_model(model, to_file='UNet4.png', show_shapes=True, show_layer_names=True)
     return model
