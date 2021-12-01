@@ -25,13 +25,13 @@ test_labels_dir = 'data/label/'
 weights_output_dir = 'weights_output/'
 weights_output_name = 'UNet4_res_assp_5x5_16k_320x320'
 # batch size. How many samples you want to feed in one iteration?
-batch_size = 4
+batch_size = 2
 # number_of_epoch. How many epochs you want to train?
-number_of_epoch = 20
+number_of_epoch = 100
 # After how many epochs you want to reduce learning rate by half?
-lr_scheduling_epochs = 5
+lr_scheduling_epochs = 35
 # initial learning rate
-initial_lr = 0.0001
+initial_lr = 0.001
 
 
 class CustomSaver(tf.keras.callbacks.Callback):
@@ -40,14 +40,14 @@ class CustomSaver(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         # also save if validation error is smallest
-        if 'val_dice_score' in logs.keys():
-            val_score = logs['val_dice_score']
+        if 'val_dice_eval' in logs.keys():
+            val_score = logs['val_dice_eval']
             if val_score > self.best_val_score:
                 self.best_val_score = val_score
                 print('New best weights found!')
-                self.model.save(weights_output_dir + '_best.hdf5')
+                self.model.save(weights_output_dir + 'best_weights.hdf5')
         else:
-            print('Key val_dice_score does not exist!')
+            print('Key val_dice_eval does not exist!')
 
 
 # This function keeps the learning rate at 0.001 for the first ten epochs
@@ -79,12 +79,12 @@ def train():
     model = unet_autoencoder(filters_in_input=16,
                              input_size=(image_width, image_width, image_channels),
                              loss_function=Loss.CROSSENTROPY50DICE50,
-                             downscale_times=6,
+                             downscale_times=4,
                              learning_rate=1e-3,
-                             use_se=False,
+                             use_se=True,
                              use_aspp=True,
                              use_coord_conv=False,
-                             use_residual_connections=False,
+                             use_residual_connections=True,
                              leaky_relu_alpha=0.1)
 
     model.summary()

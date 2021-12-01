@@ -40,6 +40,15 @@ class AlphaScheduler(Callback):
 """
 
 
+def dice_eval(y_true, y_pred):
+    """
+    Threshold before evaluating
+    """
+    y_true_th = K.backend.cast(K.backend.greater(y_true, 0.5), 'float32')
+    y_pred_th = K.backend.cast(K.backend.greater(y_pred, 0.5), 'float32')
+    return dice_score(y_true_th, y_pred_th)
+
+
 def cross_and_dice_loss_multiclass(w_cross, w_dice):
     def cross_and_dice_loss_(y_true, y_pred):
         cross_entropy_value = tf.losses.categorical_crossentropy(y_true, y_pred)
