@@ -1,4 +1,4 @@
-# Drilled holes segmentation in the furniture panels 📸 -> 🕳️
+# Drilled holes segmentation in the furniture panels 📸 -> 🕳️ [Custom and Scalable UNet]
 
 Article '***Segmentation of Drilled Holes in Texture Wooden Furniture Panels Using Deep Neural Network***' by ***Rytis Augustauskas***, ***Arūnas Lipnickas*** and ***Tadas Surgailis*** is printed in ***MDPI Sensors*** journal.
 
