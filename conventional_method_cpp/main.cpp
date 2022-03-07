@@ -1,7 +1,7 @@
 #include "opencv2/core.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
-#include <opencv2/core/operations.hpp> //paritions
+#include <opencv2/core/operations.hpp> //partitions
 #include <string>
 #include <vector>
 #include <filesystem>
