@@ -32,7 +32,7 @@ for k=1:length(names)
     edgeFIS = addRule(edgeFIS,[r1 r2]);
     %edgeFIS.Rules
     Ieval = zeros(size(I));
-    for ii = 1:size(I,1)
+    parfor ii = 1:size(I,1)
         Ieval(ii,:) = evalfis(edgeFIS,[(Ix(ii,:));(Iy(ii,:))]');
     end
     %figure
