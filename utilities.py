@@ -11,8 +11,13 @@ def gather_image_from_dir(input_dir):
     return image_list
 
 
-def get_file_name(path):
-    file_name_with_ext = path.rsplit('\\', 1)[1]
+def get_file_name_with_ext(path: str):
+    file_name_with_ext = os.path.basename(path)
+    return file_name_with_ext
+
+
+def get_file_name(path: str):
+    file_name_with_ext = os.path.basename(path)
     file_name, file_extension = os.path.splitext(file_name_with_ext)
     return file_name
 
